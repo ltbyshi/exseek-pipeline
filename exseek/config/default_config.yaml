@@ -262,7 +262,9 @@ count_overlapping_features: true
 igv_base_url: http://127.0.0.1:5000
 
 # Configuration for singularity
-singularity:
+container:
+  singularity_path: singularity
+  udocker_path: udocker
   image: singularity/exseek.simg
   wrapper_dir: singularity/wrappers
 

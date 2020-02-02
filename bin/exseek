@@ -11,6 +11,7 @@ import exseek
 steps = (
     'quality_control',
     'quality_control_clean',
+    'create_index',
     'cutadapt', 
     'rename_fastq',
     'fastq_to_fasta', 
@@ -62,10 +63,6 @@ if __name__ == '__main__':
     parser.add_argument('--config-dir', '-c', type=str,
         help='directory for configuration files')
     parser.add_argument('--cluster', action='store_true', help='submit to cluster')
-    parser.add_argument('--cluster-config', type=str, 
-        help='cluster configuration file ({config_dir}/cluster.yaml by default)')
-    parser.add_argument('--cluster-command', type=str,
-        help='command for submitting job to cluster (default read from {config_dir}/cluster_command.txt')
     parser.add_argument('--singularity', action='store_true',
         help='use singularity')
     args, extra_args = parser.parse_known_args()
@@ -112,17 +109,11 @@ if __name__ == '__main__':
         cluster_config = get_config_file('cluster.yaml')
         if not os.path.isfile(cluster_config):
             if args.cluster_config is None:
-                raise ValueError('cannot find cluster.yaml and --cluster-config is not specified')
-            cluster_config = args.cluster_config
+                raise ValueError('cannot find cluster.yaml')
 
-        cluster_command_file = get_config_file('cluster_command.txt')
-        if os.path.isfile(cluster_command_file):
-            with open(cluster_command_file, 'r') as f:
-                cluster_command = f.read().strip()
-        else:
-            if args.cluster_command is None:
-                raise ValueError('cannot find cluster_command.txt and --cluster-command is not specified')
-            cluster_command = args.cluster_command
+        cluster_command = config.get('cluster_command')
+        if cluster_command is None:
+            raise ValueError('variable cluster_command is not defined in the configuration file')
         snakemake_args += ['--cluster', cluster_command, '--cluster-config', cluster_config]
     
     def update_sequential_mapping():
@@ -141,7 +132,7 @@ if __name__ == '__main__':
         logger.info('generate singularity wrappers')
         subprocess.check_call(['python', os.path.join(package_dir, 'scripts', 'make_singularity_wrappers.py'), 
             '--image', default_config['singularity']['image'],
-            '--list-file', os.path.join(root_dir, 'singularity/exports.txt'),
+            '--list-file', os.path.join(package_dir, 'singularity', 'exports.txt'),
             '--singularity-path', singularity_path,
             '-o', default_config['singularity']['wrapper_dir']
         ], shell=False)
@@ -152,6 +143,11 @@ if __name__ == '__main__':
             snakefile = os.path.join(package_dir, 'snakefiles', 'quality_control_pe.snakemake')
         else:
             snakefile = os.path.join(package_dir, 'snakefiles', 'quality_control_se.snakemake')
+    elif args.step == 'create_index':
+        if config['small_rna']:
+            snakefile = os.path.join(package_dir, 'snakefiles', 'create_index_small.snakemake')
+        else:
+            snakefile = os.path.join(package_dir, 'snakefiles', 'create_index_long.snakemake')
     elif args.step == 'cutadapt':
         if config['paired_end']:
             snakefile = os.path.join(package_dir, 'snakefiles', 'cutadapt_pe.snakemake')
