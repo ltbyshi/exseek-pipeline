@@ -14,7 +14,7 @@ def get_all_inputs(wildcards):
             genome_dir=config['genome_dir'], rna_type=rna_types),
     )
     all_inputs = []
-    for l in all_inputs.values():
+    for l in inputs.values():
         all_inputs += l
     return all_inputs
 
