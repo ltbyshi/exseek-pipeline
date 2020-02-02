@@ -13,7 +13,10 @@ def get_all_inputs(wildcards):
         bowtie2_index=expand('{genome_dir}/index/bowtie2/{rna_type}.1.bt2',
             genome_dir=config['genome_dir'], rna_type=rna_types),
     )
-    return inputs
+    all_inputs = []
+    for l in all_inputs.values():
+        all_inputs += l
+    return all_inputs
 
 rule all:
     input:
