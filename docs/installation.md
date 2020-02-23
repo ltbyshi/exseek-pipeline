@@ -60,6 +60,7 @@ with the [bioconda](https://bioconda.github.io/) channel and [conda-forge](https
 
 You can refer to the [Dockerfile](../docker/Dockerfile) for commands to install the dependencies. You should also ensure that the executables are added to the `$PATH` environment variable.
 
+
 | Software  | Version | Description  |
 |-----------|---------|--------------|
 | Python  | 3.6  | Python interpreter  |
