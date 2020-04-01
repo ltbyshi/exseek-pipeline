@@ -1,10 +1,8 @@
-microsoft-r-open-mro-3.5.1 apt
-gcc apt
-g++ apt
-openjdk-8-jdk-headless apt
-openjdk-8-jre-headless apt
-perl apt
-perl-base apt
+microsoft-r-open-mkl-3.5.3 rpm
+gcc rpm
+gcc-c++ rpm
+java-1.8.0-openjdk-headless rpm
+perl rpm
 python conda
 bedtools conda
 samtools conda
@@ -26,3 +24,7 @@ fastx_toolkit conda
 ipython conda
 jupyter_core conda
 fastqc conda
+bedGraphToBigWig /apps/ucsc_tools/bedGraphToBigWig
+bedToGenePred /apps/ucsc_tools/bedToGenePred
+bigWigToBedGraph /apps/ucsc_tools/bigWigToBedGraph
+genePredToGtf /apps/ucsc_tools/genePredToGtf

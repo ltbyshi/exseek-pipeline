@@ -7,6 +7,7 @@ import shutil
 import shlex
 import subprocess
 import exseek
+import pkg_resources
 
 steps = (
     'quality_control',
@@ -29,11 +30,13 @@ steps = (
     'evaluate_features',
     'igv',
     'update_sequential_mapping',
-    'update_singularity_wrappers'
+    'update_singularity_wrappers',
+    'build_index'
 )
 
 # use current directory as working directory by default
 package_dir = os.path.dirname(exseek.__file__)
+package_dir = pkg_resources.resource_filename('exseek', '/')
 root_dir = os.getcwd()
 config_dirs = []
 
@@ -126,15 +129,37 @@ if __name__ == '__main__':
         subprocess.check_call(update_command, shell=False)
         
     def update_singularity_wrappers():
-        singularity_path = shutil.which('singularity')
-        if singularity_path is None:
-            raise ValueError('cannot find singularity')
-        logger.info('generate singularity wrappers')
+        container_backend = config.get('container', {}).get('backend')
+        if container_backend == 'singularity':
+            backend_executable = config.get('container', {}).get('singularity_path')
+            if backend_executable is None:
+                backend_executable = shutil.which('singularity')
+            if backend_executable is None:
+                raise ValueError('cannot find singularity executable')
+            container_image = config.get('container', {}).get('singularity_image')
+        elif container_backend == 'udocker':
+            backend_executable = config.get('container', {}).get('udocker_path')
+            if backend_executable is None:
+                backend_executable = shutil.which('udocker')
+            if backend_executable is None:
+                raise ValueError('cannot find udocker executable')
+            container_image = config.get('container', {}).get('udocker_image')
+        elif container_backend == 'docker':
+            backend_executable = config.get('container', {}).get('docker_path')
+            if backend_executable is None:
+                backend_executable = shutil.which('docker')
+            if backend_executable is None:
+                raise ValueError('cannot find docker executable')
+            container_image = config.get('container', {}).get('docker_image')
+        else:
+            raise ValueError('unknown container backend: {}'.format(container_backend))
+        logger.info('generate container wrappers')
         subprocess.check_call(['python', os.path.join(package_dir, 'scripts', 'make_singularity_wrappers.py'), 
-            '--image', default_config['singularity']['image'],
+            '--image', container_image,
             '--list-file', os.path.join(package_dir, 'singularity', 'exports.txt'),
-            '--singularity-path', singularity_path,
-            '-o', default_config['singularity']['wrapper_dir']
+            '--backend', container_backend,
+            '--backend-executable', backend_executable,
+            '-o', config['container']['wrapper_dir']
         ], shell=False)
         
     # find proper version of snakemake

@@ -1,0 +1,179 @@
+include: 'common.snakemake'
+
+genome_dir = config['genome_dir']
+
+def get_all_inputs(wildcards):
+    available_inputs = dict(
+        fasta_index=expand('{genome_dir}/fasta/genome.fa.fai', genome_dir=genome_dir),
+        bowtie2_index=expand('{genome_dir}/index/bowtie2/{rna_type}.1.bt2',
+            genome_dir=genome_dir, rna_type=config['rna_types']),
+        #star_index=expand('{genome_dir}/index/star/{rna_type}/SA',
+        #    genome_dir=genome_dir, rna_type=[config['rna_types']]),
+        #star_genome_index=expand('{genome_dir}/long_index/star/Genome', genome_dir=genome_dir),
+        bowtie2_genome_index=expand('{genome_dir}/genome_index/bowtie2/genome.1.bt2', genome_dir=genome_dir),
+        chrom_sizes=expand('{genome_dir}/chrom_sizes/transcriptome', genome_dir=genome_dir),
+    )
+    enabled_inputs = list(available_inputs.keys())
+    inputs = []
+    for key, l in available_inputs.items():
+        if key in enabled_inputs:
+            inputs += l
+    return inputs
+
+rule all:
+    input:
+        get_all_inputs
+
+rule build_bowtie2_index:
+    input:
+
+rule fasta_index:
+    input:
+        '{genome_dir}/fasta/genome.fa'
+    output:
+        '{genome_dir}/fasta/genome.fa.fai'
+    shell:
+        '''samtools faidx {input}
+        '''
+
+rule transcript_index_bowtie2:
+    input:
+        '{genome_dir}/fasta/{rna_type}.fa'
+    output:
+        bt2_1='{genome_dir}/index/bowtie2/{rna_type}.1.bt2',
+        bt2rev_1='{genome_dir}/index/bowtie2/{rna_type}.rev.1.bt2'
+    params:
+        output_prefix='{genome_dir}/index/bowtie2/{rna_type}'
+    threads:
+        config['threads']
+    shell:
+        '''bowtie2-build --threads {threads} {input} {params.output_prefix}
+        '''
+
+rule transcript_index_star:
+    input:
+        fasta='{genome_dir}/fasta/{rna_type}.fa',
+        fai='{genome_dir}/fasta/{rna_type}.fa.fai'
+    output:
+        Genome='{genome_dir}/index/star/{rna_type}/Genome',
+        SA='{genome_dir}/index/star/{rna_type}/SA'
+    params:
+        output_prefix='{genome_dir}/index/star/{rna_type}',
+        limitGenomeGenerateRAM=config['star_genome_generate']['limitGenomeGenerateRAM']
+    threads:
+        config['threads_mapping']
+    run:
+        from math import log2
+        # calculate star parameters
+        genome_length = 0
+        n_seqs = 0
+        with open(input.fai, 'r') as f:
+            for line in f:
+                genome_length += int(line.split('\t')[1])
+                n_seqs += 1
+        genomeSAindexNbases = min(14, int(log2(genome_length)//2) - 1)
+        genomeChrBinNbits = min(18, int(log2(genome_length/n_seqs)))
+
+        shell('''STAR --runThreadN {threads} \
+            --runMode genomeGenerate \
+            --genomeSAindexNbases {genomeSAindexNbases} \
+            --genomeDir {params.output_prefix} \
+            --genomeFastaFiles {input.fasta} \
+            --genomeChrBinNbits {genomeChrBinNbits} \
+            --limitGenomeGenerateRAM {params.limitGenomeGenerateRAM}
+        ''')
+
+rule genome_index_bowtie2:
+    input:
+        '{genome_dir}/fasta/genome.fa'
+    output:
+        bt2_1='{genome_dir}/genome_index/bowtie2/genome.1.bt2',
+        bt2rev_1='{genome_dir}/genome_index/bowtie2/genome.rev.1.bt2'
+    params:
+        output_prefix='{genome_dir}/genome_index/bowtie2/genome'
+    threads:
+        config['threads']
+    shell:
+        '''bowtie2-build --threads {threads} {input} {params.output_prefix}
+        '''
+
+rule genome_index_star:
+    input:
+        '{genome_dir}/fasta/genome.fa'
+    output:
+        SA='{genome_dir}/genome_index/star/SA',
+        Genome='{genome_dir}/genome_index/star/Genome'
+    params:
+        output_prefix='{genome_dir}/genome_index/star/',
+        limitGenomeGenerateRAM=config['star_genome_generate']['limitGenomeGenerateRAM']
+    threads:
+        config['threads']
+    shell:
+        '''STAR --runMode genomeGenerate --runThreadN {threads} \
+            --genomeDir {params.output_prefix} --genomeFastaFiles {input} \
+            --limitGenomeGenerateRAM {params.limitGenomeGenerateRAM}
+        '''
+
+rule long_index_star:
+    input:
+        fasta='{genome_dir}/fasta/genome.fa',
+        gtf='{genome_dir}/gtf/long_RNA.gtf'
+    output:
+        SA='{genome_dir}/long_index/star/SA',
+        Genome='{genome_dir}/long_index/star/Genome'
+    params:
+        output_prefix='{genome_dir}/long_index/star/',
+        sjdbOverhang=config['star_genome_generate']['sjdbOverhang'],
+        limitGenomeGenerateRAM=config['star_genome_generate']['limitGenomeGenerateRAM']
+    threads:
+        config['threads']
+    shell:
+        '''STAR --runMode genomeGenerate --runThreadN {threads} \
+            --genomeDir {params.output_prefix} --genomeFastaFiles {input.fasta} \
+            --sjdbGTFfile {input.gtf} --sjdbOverhang {params.sjdbOverhang} \
+            --outFileNamePrefix {params.output_prefix} \
+            --limitGenomeGenerateRAM {params.limitGenomeGenerateRAM}
+        '''
+
+
+rule chrom_sizes:
+    input:
+        '{genome_dir}/fasta/{rna_type}.fa.fai'
+    output:
+        '{genome_dir}/chrom_sizes/{rna_type}'
+    wildcard_constraints:
+        rna_type='(?!transcriptome$)(?!genome$)(?!transcriptome_genome$).*'
+    shell:
+        '''cut -f1,2 {input} > {output}
+        '''
+
+
+rule merge_transcript_sizes:
+    input:
+        lambda wildcards: expand('{genome_dir}/chrom_sizes/{rna_type}',
+            genome_dir=wildcards.genome_dir, rna_type=rna_types)
+    output:
+        '{genome_dir}/chrom_sizes/transcriptome'
+    shell:
+        '''cat {input} > {output}
+        '''
+
+rule genome_chrom_sizes:
+    input:
+        '{genome_dir}/fasta/genome.fa.fai'
+    output:
+        '{genome_dir}/chrom_sizes/genome'
+    shell:
+        '''cut -f1-2 {input} > {output}
+        '''
+
+rule merge_transcriptome_genome_sizes:
+    input:
+        '{genome_dir}/chrom_sizes/transcriptome',
+        '{genome_dir}/chrom_sizes/genome'
+    output:
+        '{genome_dir}/chrom_sizes/transcriptome_genome'
+    shell:
+        '''cat {input} > {output}
+        '''
+    

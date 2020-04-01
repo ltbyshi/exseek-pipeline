@@ -15,7 +15,8 @@ RUN wget --quiet -P /apps/archive 'https://mran.blob.core.windows.net/install/mr
 RUN tar -C /apps/archive -zxf /apps/archive/microsoft-r-open-3.5.3.tar.gz
 RUN bash /apps/archive/microsoft-r-open/install.sh -s -a -u
 # install R packages
-COPY install-R-packages.R R-packages.txt /apps/archive/
+# COPY install-R-packages.R R-packages.txt /apps/archive/
+COPY install-R-packages.R /apps/archive/
 RUN cd /apps/archive; Rscript /apps/archive/install-R-packages.R
 
 # install anaconda3
@@ -36,7 +37,7 @@ RUN /apps/anaconda3/bin/conda install -y numpy scipy scikit-learn 'openssl<1.1' 
     && /apps/anaconda3/bin/conda install -c bioconda -y rsem bamtools cutadapt picard gffread gffcompare \
     && /apps/anaconda3/bin/conda install -c bioconda -y ucsc-bedtogenepred ucsc-genepredtogtf ucsc-bedgraphtobigwig ucsc-bigwigtobedgraph \
     && /apps/anaconda3/bin/conda install -c bioconda -y htseq fastx_toolkit biopython \
-    && /apps/anaconda3/bin/conda install -c bioconda -y multiqc
+    && /apps/anaconda3/bin/conda install -c bioconda -y multiqc fastqc
 
 # Jupyter
 RUN /apps/anaconda3/bi/conda install -y -c conda-forge jupyterhub \

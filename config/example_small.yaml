@@ -1,0 +1,12 @@
+container:
+    backend: singularity
+    singularity_path: /opt/singularity-2.5.2/bin/singularity
+    udocker_path: udocker
+    singularity_image: /home/vbox/singularity/exseek2
+    wrapper_dir: singularity/wrappers
+data_dir: data/example_small
+output_dir: output/example_small
+threads: 4
+star_genome_generate:
+  sjdbOverhang: 100
+  limitGenomeGenerateRAM: 16000000000
