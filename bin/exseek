@@ -19,11 +19,11 @@ steps = (
     'fastq_to_fasta', 
     'prepare_genome', 
     'bigwig',
-    'mapping', 
+    'mapping',
+    'sequential_mapping',
     'filter',
     'count_matrix', 
     'call_domains', 
-    'merge_domains',
     'combine_domains',
     'normalization', 
     'feature_selection', 
@@ -139,6 +139,18 @@ if __name__ == '__main__':
                 '-o', snakefile]
         logger.info('run ' + ' '.join(update_command))
         subprocess.check_call(update_command, shell=False)
+    
+    def generate_sequential_mapping_snakefile():
+        snakefile = os.path.join(config['output_dir'], 'sequential_mapping.snakemake')
+        logger.info('generate sequential_mapping.snakemake')
+        update_command = [os.path.join(package_dir, 'scripts', 'generate_snakemake.py'), 'sequential_mapping',
+                '--rna-types', ','.join(config['rna_types']), 
+                '--template', os.path.join(package_dir, 'templates', 'sequential_mapping_subworkflow.snakemake'),
+                '--common-snakemake', os.path.join(package_dir, 'snakefiles', 'common.snakemake'),
+                '-o', snakefile]
+        logger.info('run ' + ' '.join(update_command))
+        subprocess.check_call(update_command, shell=False)
+        return snakefile
         
     def update_singularity_wrappers():
         container_backend = config.get('container', {}).get('backend')
@@ -195,11 +207,10 @@ if __name__ == '__main__':
             snakefile = os.path.join(package_dir, 'snakefiles', 'quality_control_clean_pe.snakemake')
         else:
             snakefile = os.path.join(package_dir, 'snakefiles', 'quality_control_clean_se.snakemake')
+    elif args.step == 'sequential_mapping':
+        snakefile = generate_sequential_mapping_snakefile()
     elif args.step == 'mapping':
         if config['small_rna']:
-            update_sequential_mapping()
-            #if not os.path.exists(os.path.join(package_dir, 'snakefiles', 'sequential_mapping.snakemake')):
-            #    update_sequential_mapping()
             snakefile = os.path.join(package_dir, 'snakefiles', 'mapping_small.snakemake')
         else:
             if config['paired_end']:

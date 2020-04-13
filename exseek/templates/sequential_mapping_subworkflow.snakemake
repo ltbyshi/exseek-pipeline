@@ -1,17 +1,11 @@
-# required configs
-for key in ('sample_id_file', 'output_dir', 'genome_dir', 'spikein_dir'):
-    if key not in config:
-        raise ValueError('cannot find key {} in config'.format(key))
-# read sample ids from file
-with open(os.path.join(config['sample_id_file']), 'r') as f:
-    sample_ids = f.read().split()
-for sample_id in sample_ids:
-    if '.' in sample_id:
-        raise ValueError('"." is not allowed in sample ID: {}'.format(sample_id))
+include: '{{ common_snakemake }}'
 
 rule all:
-    unmapped='{output_dir}/unmapped/{sample_id}/other.fa.gz'
-    bam='{output_dir}/gbam/{sample_id}/other.bam'
+    input:
+        unmapped=expand('{output_dir}/unmapped/{sample_id}/other.fa.gz',
+            output_dir=output_dir, sample_id=sample_ids),
+        bam=expand('{output_dir}/gbam/{sample_id}/other.bam',
+            output_dir=output_dir, sample_id=sample_ids)
 
 {% for rna_type in rna_types %}
 rule map_{{ rna_type }}:

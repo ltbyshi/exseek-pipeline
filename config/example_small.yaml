@@ -1,3 +1,7 @@
+# RNA types for sequential mapping in small-RNA pipeline
+rna_types: [univec, rRNA, mature_miRNA, lncRNA, miRNA, mRNA, piRNA, snoRNA, 
+  snRNA, srpRNA, tRNA, tucpRNA, Y_RNA]
+
 container:
     backend: docker
     singularity_path: /opt/singularity-2.5.2/bin/singularity

@@ -287,5 +287,4 @@ rule map_genome:
         | samtools view -b -o {output.bam}
         '''
     
-include: 'sequential_mapping.snakemake'
 

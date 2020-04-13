@@ -22,7 +22,7 @@ def sequential_mapping(args):
     with open(args.template, 'r') as f:
         template = env.from_string(f.read())
     with open_file_or_stdout(args.output_file) as f:
-        f.write(template.render(rna_types=rna_types, aligner=args.aligner))
+        f.write(template.render(rna_types=rna_types, aligner=args.aligner, common_snakemake=args.common_snakemake))
 
 if __name__ == '__main__':
     main_parser = argparse.ArgumentParser(description='Count reads in BAM files')
@@ -36,6 +36,8 @@ if __name__ == '__main__':
         help='aligner to use')
     parser.add_argument('--template', '-t', type=str, default='templates/sequential_mapping.snakemake',
         help='template for snakefile')
+    parser.add_argument('--common-snakemake', type=str, required=True,
+        help='path of common.snakemake')
     parser.add_argument('--output-file', '-o', type=str, default='-',
         help='output file')
     
