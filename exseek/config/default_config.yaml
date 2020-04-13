@@ -1,5 +1,5 @@
 # RNA types for sequential mapping in small-RNA pipeline
-rna_types: [univec, rRNA, lncRNA, miRNA, mRNA, piRNA, snoRNA, 
+rna_types: [univec, rRNA, lncRNA, mature_miRNA, miRNA, mRNA, piRNA, snoRNA, 
   snRNA, srpRNA, tRNA, tucpRNA, Y_RNA]
 # Adjusted p-value threshold for defining domains
 call_domain_pvalue: "05"
@@ -157,7 +157,7 @@ cross_validation_splits: 50
 #   domains_combined: combine miRNA/piRNA with long RNA domains
 #   transcript: transcript-level features
 #   featurecounts: gene-level features counted using featureCounts
-count_method: domains_combined
+count_method: mirna_and_long_fragments
 # Define low expression value as read counts below this value
 filtercount: 5
 # Threshold for filtering low expression features
@@ -188,7 +188,8 @@ tools_dir: "tools"
 bin_dir: "bin"
 # Directory for spike-in sequences and index
 spikein_dir: "genome/hg38/spikein"
-
+# bin path to R
+r_dir: "/usr/bin"
 # Input files are clean reads
 input_clean_reads: false
 

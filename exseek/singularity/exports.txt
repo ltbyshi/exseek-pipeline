@@ -1,4 +1,5 @@
 microsoft-r-open-mkl-3.5.3 rpm
+microsoft-r-open-mro-3.5.3 rpm
 gcc rpm
 gcc-c++ rpm
 java-1.8.0-openjdk-headless rpm

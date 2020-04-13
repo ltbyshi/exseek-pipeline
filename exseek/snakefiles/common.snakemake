@@ -20,6 +20,7 @@ def get_config_file(filename):
             return os.path.join(config_dir, filename)
 
 # setup global variables
+package_dir = require_variable('package_dir')
 root_dir = require_variable('root_dir', 'input_dir')
 config_dirs = require_variable('config_dirs')
 config_dirs = config_dirs.split(':')
@@ -38,6 +39,7 @@ output_dir = require_variable('output_dir')
 rna_types = require_variable('rna_types')
 tools_dir = require_variable('tools_dir')
 temp_dir = require_variable('temp_dir')
+r_dir = require_variable('r_dir')
 # create temp_dir
 if not os.path.isdir(temp_dir):
     os.makedirs(temp_dir)
@@ -48,6 +50,15 @@ with open(os.path.join(data_dir, 'sample_ids.txt'), 'r') as f:
 for sample_id in sample_ids:
     if '.' in sample_id:
         raise ValueError('"." is not allowed in sample ID: {}'.format(sample_id))
+
+# rna types with annotation gtf
+rna_types_with_gtf = []
+for rna_type in config['rna_types']:
+    if rna_type not in ('univec', 'rRNA', 'spikein'):
+        rna_types_with_gtf.append(rna_type)
+
+# long RNA types
+long_rna_types = list(filter(lambda x: x not in ('miRNA', 'piRNA', 'rRNA', 'spikein', 'univec'), config['rna_types']))
 
 # read adapter sequences
 for key in ('adaptor', 'adaptor_5p'):
@@ -206,13 +217,13 @@ jupyter nbconvert --execute --to html \
 # export singularity wrappers
 use_singularity = config.get('use_singularity')
 if use_singularity:
-    os.environ['PATH'] = config['singularity']['wrapper_dir'] + ':' + os.environ['PATH']
+    os.environ['PATH'] = config['container']['wrapper_dir'] + ':' + os.environ['PATH']
 
 if not os.path.isdir(temp_dir):
     os.makedirs(temp_dir)
 
 sub_matrix_regex = '(mirna_only)'
-count_method_regex = '(featurecounts)|(htseq)|(transcript)|(transcript_long)|(mirna_and_domains)|(mirna_and_domains_rna)|(transcript_mirna)|(featurecounts_mrna)|(featurecounts_lncrna)'
+count_method_regex = '(featurecounts)|(htseq)|(transcript)|(mirna_and_long_fragments)|(featurecounts_lncrna)'
 imputation_method_regex = '(scimpute_count)|(viper_count)|(null)'
 normalization_method_regex = '(SCnorm)|(TMM)|(RLE)|(CPM)|(CPM_top)|(CPM_rm)|(CPM_refer)|(UQ)|(null)'
 batch_removal_method_with_batchinfo_regex = '(ComBat)|(limma)'

@@ -22,6 +22,8 @@ def get_all_inputs(wildcards):
             output_dir=output_dir),
         unmapped_other=expand('{output_dir}/unmapped/{sample_id}/other.fa.gz',
             output_dir=output_dir, sample_id=sample_ids),
+        tbam=expand('{output_dir}/tbam/{sample_id}/{rna_type}.bam',
+            output_dir=output_dir, sample_id=sample_ids, rna_type=config['rna_types']),
         map_genome=expand('{output_dir}/gbam/{sample_id}/genome.bam',
             output_dir=output_dir, sample_id=sample_ids)
     )
@@ -89,7 +91,7 @@ rule summarize_read_counts:
     input:
         mapped=lambda wildcards: expand('{output_dir}/stats/read_counts_mapped/{sample_id}/{rna_type}',
             output_dir=wildcards.output_dir, sample_id=sample_ids, 
-            rna_type=rna_types + ['other', 'promoter', 'enhancer', 'intron', 'repeats']),
+            rna_type=config['rna_types'] + ['other', 'promoter', 'enhancer', 'intron', 'repeats']),
         unmapped=lambda wildcards: expand('{output_dir}/stats/read_counts_unmapped/{sample_id}/{rna_type}',
             output_dir=wildcards.output_dir, sample_id=sample_ids, rna_type=['clean', 'other'])
     output:
@@ -119,7 +121,7 @@ rule summarize_read_counts:
 rule summarize_read_counts_jupyter:
     input:
         read_counts='{output_dir}/summary/read_counts.txt',
-        jupyter='templates/summarize_read_counts_small.ipynb'
+        jupyter=package_dir + '/templates/summarize_read_counts_small.ipynb'
     output:
         jupyter='{output_dir}/summary/read_counts.ipynb',
         html='{output_dir}/summary/read_counts.html'

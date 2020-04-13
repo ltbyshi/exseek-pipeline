@@ -111,3 +111,5 @@ genome/
 genome
 .vscode/
 sync.sh
+docs_old/
+output/

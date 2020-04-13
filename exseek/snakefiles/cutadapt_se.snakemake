@@ -97,7 +97,7 @@ rule summarize_cutadapt_se:
 rule summarize_cutadapt_jupyter_se:
     input:
         summary='{output_dir}/summary/cutadapt.txt',
-        jupyter=root_dir + '/templates/summarize_cutadapt_se.ipynb'
+        jupyter=package_dir + '/templates/summarize_cutadapt_se.ipynb'
     output:
         jupyter='{output_dir}/summary/cutadapt.ipynb',
         html='{output_dir}/summary/cutadapt.html'

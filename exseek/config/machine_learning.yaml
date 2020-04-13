@@ -33,6 +33,7 @@ selectors:
     name: DiffExpFilter
     type: selector
     params:
+      rscript_path: /usr/bin/Rscript
       score_type: neglogp
       method: ttest
   MaxFeatures_RandomForest:
@@ -91,6 +92,7 @@ selectors:
     name: SIS
     type: selector
     params:
+      rscript_path: /usr/bin/Rscript
       sis_params:
         family: binomial
         tune: bic
@@ -214,7 +216,7 @@ classifiers:
 cv_params:
   splitter: StratifiedShuffleSplit
   # number of train-test splits for cross-validation
-  n_splits: 50
+  n_splits: 5
   # number or proportion of samples to use as test set
   test_size: 0.1
   # scoring metric for performance evaluation

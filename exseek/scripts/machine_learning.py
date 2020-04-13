@@ -99,7 +99,7 @@ def cross_validation1(args):
     #    X[np.isnan(X)] = 0
     # remove missing features
     X = X[:, np.all(~np.isnan(X), axis=0)]
-    if X.shape[0] < 20:
+    if X.shape[0] < 5:
         raise ValueError('too few samples for machine learning')
     if not os.path.isdir(args.output_dir):
         logger.info('create output directory: ' + args.output_dir)
@@ -233,7 +233,7 @@ def run_pipeline(args):
     # fill missing features
     X = np.nan_to_num(X)
     #X = X[:, np.all(~np.isnan(X), axis=0)]
-    if X.shape[0] < 20:
+    if X.shape[0] < 5:
         raise ValueError('too few samples for machine learning')
     if not os.path.isdir(args.output_dir):
         logger.info('create output directory: ' + args.output_dir)

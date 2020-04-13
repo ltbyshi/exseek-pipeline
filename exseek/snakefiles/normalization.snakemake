@@ -11,6 +11,8 @@ config['imputation_methods'] = ['null']
 
 def get_all_inputs(wildcards):
     available_inputs = []
+    available_inputs += expand('{output_dir}/matrix_processing/filter.{count_method}.txt',
+            output_dir=output_dir, count_method=config['count_method'])
     for batch_removal_method in config['batch_removal_methods']:
         template = '{output_dir}/matrix_processing/filter.{imputation_method}.Norm_{normalization_method}.Batch_{batch_removal_method}_{batch_index}.{count_method}.txt'
         available_inputs += expand(template,
@@ -34,7 +36,31 @@ rule all:
     input:
         get_all_inputs
 
-include: 'rules/filter.snakemake'
+#include: 'rules/filter.snakemake'
+
+rule filter_step:
+    input:
+        matrix='{output_dir}/count_matrix/{count_method}.txt',
+        sample_classes=data_dir + '/sample_classes.txt'
+    output:
+        matrix='{output_dir}/matrix_processing/filter.{count_method}.txt'
+    threads:
+        config['threads']
+    run:
+        command= '''{r_dir}/Rscript {bin_dir}/matrix-process.R -s filter \
+            -c {input.sample_classes} \
+            -i {input.matrix} \
+            -o {output.matrix} \
+            -p {threads}'''
+        if config['filtercount'] > 0:
+            command = command + ' --filtercount {}'.format(config['filtercount'])
+        if config['filterexpv'] > 0:
+            if config['small_rna']:
+                command = command + ' --filtercpm {}'.format(config['filterexpv'])
+            else:
+                command = command + ' --filterrpkm {}'.format(config['filterexpv'])
+        command = command + ' --filtersample {}'.format(config['filtersample'])
+        shell(command)
 
 rule imputation_step:
     input:
@@ -51,7 +77,7 @@ rule imputation_step:
         imputation_method=imputation_method_regex,
         count_method=count_method_regex
     shell:
-        '''Rscript {bin_dir}/matrix-process.R -s imputation \
+        '''{r_dir}/Rscript {bin_dir}/matrix-process.R -s imputation \
         -i {input.matrix} \
         -c {input.sample_classes} \
         -o {output.matrix} \
@@ -77,7 +103,7 @@ rule normalization_step:
         remove_gene_types='miRNA,piRNA',
         normtopk=20
     shell:
-        '''Rscript {bin_dir}/matrix-process.R -s normalization \
+        '''{r_dir}/Rscript {bin_dir}/matrix-process.R -s normalization \
         -i {input.matrix} \
         -o {output.matrix} \
         -c {input.sample_classes} \
@@ -118,7 +144,7 @@ rule batch_removal_step_with_batchinfo:
     wildcard_constraints:
         batch_removal_method=batch_removal_method_with_batchinfo_regex
     shell:
-        '''Rscript {bin_dir}/matrix-process.R -s batch_removal \
+        '''{r_dir}/Rscript {bin_dir}/matrix-process.R -s batch_removal \
         -i {input.matrix} \
         -c {input.sample_classes} \
         -b {input.batch_info} \
@@ -139,7 +165,7 @@ rule batch_removal_step_without_batchinfo:
     wildcard_constraints:
         batch_removal_method=batch_removal_method_without_batchinfo_regex
     shell:
-        '''Rscript {bin_dir}/matrix-process.R -s batch_removal \
+        '''{r_dir}/Rscript {bin_dir}/matrix-process.R -s batch_removal \
         -i {input.matrix} \
         -c {input.sample_classes} \
         -o {output.matrix} \

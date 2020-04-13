@@ -1,12 +1,12 @@
-rule map_spikein:
+rule map_univec:
     input:
         reads='{output_dir}/unmapped/{sample_id}/clean.fa.gz',
-        index=config['spikein_dir'] + '/index/bowtie2/spikein.1.bt2'
+        index=genome_dir + '/index/bowtie2/univec.1.bt2'
     output:
-        unmapped='{output_dir}/unmapped/{sample_id}/spikein.fa.gz',
-        bam='{output_dir}/tbam/{sample_id}/spikein.bam'
+        unmapped='{output_dir}/unmapped/{sample_id}/univec.fa.gz',
+        bam='{output_dir}/tbam/{sample_id}/univec.bam'
     params:
-        index=config['spikein_dir'] + '/index/bowtie2/spikein'
+        index=genome_dir + '/index/bowtie2/univec'
     threads: 
         config['threads_mapping']
     shell:
@@ -18,7 +18,7 @@ rule map_spikein:
 
 rule map_rRNA:
     input:
-        reads='{output_dir}/unmapped/{sample_id}/spikein.fa.gz',
+        reads='{output_dir}/unmapped/{sample_id}/univec.fa.gz',
         index=genome_dir + '/index/bowtie2/rRNA.1.bt2'
     output:
         unmapped='{output_dir}/unmapped/{sample_id}/rRNA.fa.gz',
@@ -52,9 +52,27 @@ rule map_lncRNA:
         | samtools view -b -o {output.bam}
         '''
 
-rule map_miRNA:
+rule map_mature_miRNA:
     input:
         reads='{output_dir}/unmapped/{sample_id}/lncRNA.fa.gz',
+        index=genome_dir + '/rsem_index/bowtie2/mature_miRNA.1.bt2'
+    output:
+        unmapped='{output_dir}/unmapped/{sample_id}/mature_miRNA.fa.gz',
+        bam='{output_dir}/tbam/{sample_id}/mature_miRNA.bam'
+    params:
+        index=genome_dir + '/rsem_index/bowtie2/mature_miRNA'
+    threads: 
+        config['threads_mapping']
+    shell:
+        '''pigz -d -c {input.reads} \
+        | bowtie2 -f -p {threads} --norc --sensitive --no-unal \
+            --un-gz {output.unmapped} -x {params.index} - -S - \
+        | samtools view -b -o {output.bam}
+        '''
+
+rule map_miRNA:
+    input:
+        reads='{output_dir}/unmapped/{sample_id}/mature_miRNA.fa.gz',
         index=genome_dir + '/index/bowtie2/miRNA.1.bt2'
     output:
         unmapped='{output_dir}/unmapped/{sample_id}/miRNA.fa.gz',

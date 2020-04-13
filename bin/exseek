@@ -6,6 +6,7 @@ import yaml
 import shutil
 import shlex
 import subprocess
+import re
 import exseek
 import pkg_resources
 
@@ -69,6 +70,16 @@ if __name__ == '__main__':
     parser.add_argument('--singularity', action='store_true',
         help='use singularity')
     args, extra_args = parser.parse_known_args()
+    # default number of jobs
+    is_set_jobs = False
+    for arg in extra_args:
+        if (re.match(r'-j[0-9]*', arg) is not None) \
+            or (re.match(r'--cores[0-9]*', arg) is not None) \
+            or (re.match(r'--jobs[0-9]*', arg) is not None):
+            is_set_jobs = True
+            break
+    if not is_set_jobs:
+        extra_args += ['-j', '1']
 
     logger = logging.getLogger('exseek')
 
@@ -124,6 +135,7 @@ if __name__ == '__main__':
         logger.info('generate sequential_mapping.snakemake')
         update_command = [os.path.join(package_dir, 'scripts', 'generate_snakemake.py'), 'sequential_mapping',
                 '--rna-types', ','.join(config['rna_types']), 
+                '--template', os.path.join(package_dir, 'templates', 'sequential_mapping.snakemake'),
                 '-o', snakefile]
         logger.info('run ' + ' '.join(update_command))
         subprocess.check_call(update_command, shell=False)
@@ -227,6 +239,7 @@ if __name__ == '__main__':
         snakefile = os.path.join(package_dir, 'snakefiles', args.step + '.snakemake')
     snakemake_args += ['--snakefile', snakefile, '--configfile', configfile]
     # set root_dir and bin_dir
+    extra_config['package_dir'] = package_dir
     extra_config['bin_dir'] = os.path.join(package_dir, 'scripts')
     extra_config['root_dir'] = root_dir
     extra_config['dataset'] = args.dataset
@@ -236,7 +249,7 @@ if __name__ == '__main__':
     snakemake_args += extra_args
 
     if args.singularity:
-        if not os.path.isdir(default_config['singularity']['wrapper_dir']):
+        if not os.path.isdir(config['container']['wrapper_dir']):
             update_singularity_wrappers()
         logger.info('enable singularity')
         extra_config['use_singularity'] = True

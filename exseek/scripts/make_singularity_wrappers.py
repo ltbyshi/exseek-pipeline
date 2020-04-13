@@ -23,7 +23,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     is_inside_container = False
-    for v in  ('SINGULARITY_CONTAINER', 'container_root'):
+    for v in  ('SINGULARITY_CONTAINER', 'container_root', 'INSIDE_DOCKER'):
         if v in os.environ:
             is_inside_container = True
             break
@@ -36,6 +36,14 @@ if __name__ == '__main__':
             subprocess.check_call([backend_executable, 'exec', args.image] + sys.argv, shell=False)
         elif args.backend == 'udocker':
             subprocess.check_call([backend_executable, 'run', args.image] + sys.argv, shell=False)
+        elif args.backend == 'docker':
+            subprocess.check_call([backend_executable, 'run', '--rm', '-it',
+                '-v', os.getcwd() + ':/workspace', '-w', '/workspace',
+                '-v', __file__ + ':/' + os.path.basename(__file__),
+                '-u', str(os.getuid()), 
+                '-e', 'INSIDE_DOCKER=1',
+                args.image,
+                'python', '/' + os.path.basename(__file__) ] + sys.argv[1:], shell=False)
         else:
             raise ValueError('unsupported backend')
         sys.exit(0)

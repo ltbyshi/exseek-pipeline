@@ -7,7 +7,7 @@ RUN yum group install -y 'Development Tools' \
          yum-utils \
         coreutils which binutils vim nano emacs openssl-devel Xorg-devel mesa-libGL-devel \
         libxml-devel libxml2-devel \
-        java-1.8.0-openjdk wget pigz \
+        java-1.8.0-openjdk wget pigz gawk \
     && yum-builddep -y R
 RUN mkdir -p /apps/archive
 # install R
@@ -28,7 +28,7 @@ RUN wget --quiet -P /apps/archive 'https://repo.anaconda.com/archive/Anaconda2-2
 # install pip packages
 RUN /apps/anaconda3/bin/pip install skrebate \
     && /apps/anaconda3/bin/conda install -c conda-forge datrie \
-    && /apps/anaconda3/bin/pip install mlxtend tqdm flask flask-AutoIndex jinja2 umap snakemake
+    && /apps/anaconda3/bin/pip install mlxtend tqdm flask flask-AutoIndex jinja2 umap snakemake pyBigWig
 # install conda packages
 RUN /apps/anaconda3/bin/conda install -y numpy scipy scikit-learn 'openssl<1.1' \
     && /apps/anaconda3/bin/conda install -y pandas matplotlib seaborn h5py bokeh \

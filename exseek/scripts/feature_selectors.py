@@ -417,11 +417,16 @@ class DiffExpFilter(BaseEstimator, SelectorMixin):
         Log2 fold change
 
     '''
-    def __init__(self, threshold=0, max_features=None, 
-            score_type='adjusted_pvalue', temp_dir=None,
+    def __init__(self, 
+            rscript_path='Rscript',
+            threshold=0, 
+            max_features=None, 
+            score_type='adjusted_pvalue',
+            temp_dir=None,
             script=None, method='deseq2',
             fold_change_direction='any',
             fold_change_threshold=1):
+        self.rscript_path = rscript_path
         self.threshold = threshold
         self.max_features = max_features
         self.score_type = score_type
@@ -457,7 +462,8 @@ class DiffExpFilter(BaseEstimator, SelectorMixin):
             sample_classes.to_csv(sample_classes_file, sep='\t', na_rep='NA', index=True, header=True)
             output_file = os.path.join(self.temp_dir, 'results.txt')
             logger.debug('run differential expression script: {}'.format(self.script))
-            subprocess.check_call([self.script, '--matrix', matrix_file, 
+            subprocess.check_call([self.rscript_path, self.script, 
+                '--matrix', matrix_file, 
                 '--classes', sample_classes_file,
                 '--method', self.method,
                 '--positive-class', 'positive', '--negative-class', 'negative',
@@ -530,7 +536,8 @@ class SIS(BaseEstimator, SelectorMixin):
     
 
     '''
-    def __init__(self, temp_dir=None, n_features_to_select=None, sis_params=None):
+    def __init__(self, rscript_path='Rscript', temp_dir=None, n_features_to_select=None, sis_params=None):
+        self.rscript_path = rscript_path
         self.temp_dir = temp_dir
         self.n_features_to_select = n_features_to_select
         self.sis_params = sis_params
@@ -566,7 +573,7 @@ write.table(model$ix, '{temp_dir}/ix.txt', col.names=FALSE, row.names=FALSE, quo
             with open(script_file, 'w') as f:
                 f.write(r_script)
             logger.debug('execute R script: ' + r_script)
-            subprocess.check_call(['Rscript', script_file], shell=False)
+            subprocess.check_call([self.rscript_path, script_file], shell=False)
             # read outputs
             #coef = pd.read_table(os.path.join(self.temp_dir, 'coef.txt'), sep='\t', index=True, header=None)
             # read indices of selected features
@@ -677,7 +684,7 @@ def get_selector(name, estimator=None, n_features_to_select=None, **params):
         ('threshold',)))
     elif name == 'DiffExpFilter':
         return DiffExpFilter(max_features=n_features_to_select, **search_dict(params,
-        ('threshold', 'script', 'temp_dir', 'score_type', 'method')))
+        ('rscript_path', 'threshold', 'script', 'temp_dir', 'score_type', 'method')))
     elif name == 'ReliefF':
         from skrebate import ReliefF
         return ReliefF(n_features_to_select=n_features_to_select,
@@ -692,7 +699,7 @@ def get_selector(name, estimator=None, n_features_to_select=None, **params):
             **search_dict(params, ('n_jobs', 'discrete_limit')))
     elif name == 'SIS':
         return SIS(n_features_to_select=n_features_to_select, 
-            **search_dict(params, ('temp_dir', 'sis_params')))
+            **search_dict(params, ('rscript_path', 'temp_dir', 'sis_params')))
     elif name == 'NullSelector':
         return NullSelector()
     else:

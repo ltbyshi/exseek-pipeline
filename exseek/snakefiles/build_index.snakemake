@@ -7,11 +7,18 @@ def get_all_inputs(wildcards):
         fasta_index=expand('{genome_dir}/fasta/genome.fa.fai', genome_dir=genome_dir),
         bowtie2_index=expand('{genome_dir}/index/bowtie2/{rna_type}.1.bt2',
             genome_dir=genome_dir, rna_type=config['rna_types']),
+        bowtie2_rsem_index=expand('{genome_dir}/rsem_index/bowtie2/{rna_type}.transcripts.fa',
+            genome_dir=genome_dir, rna_type=rna_types_with_gtf),
+        bowtie2_rsem_index_fasta_index=expand('{genome_dir}/rsem_index/bowtie2/{rna_type}.transcripts.fa.fai',
+            genome_dir=genome_dir, rna_type=rna_types_with_gtf),
         #star_index=expand('{genome_dir}/index/star/{rna_type}/SA',
         #    genome_dir=genome_dir, rna_type=[config['rna_types']]),
         #star_genome_index=expand('{genome_dir}/long_index/star/Genome', genome_dir=genome_dir),
         bowtie2_genome_index=expand('{genome_dir}/genome_index/bowtie2/genome.1.bt2', genome_dir=genome_dir),
         chrom_sizes=expand('{genome_dir}/chrom_sizes/transcriptome', genome_dir=genome_dir),
+        chrom_sizes2=expand('{genome_dir}/chrom_sizes/transcriptome_genome', genome_dir=genome_dir),
+        gtf_to_transcript_table=expand('{genome_dir}/transcript_table/{rna_type}.txt',
+            genome_dir=genome_dir, rna_type=config['rna_types'] + ['all'])
     )
     enabled_inputs = list(available_inputs.keys())
     inputs = []
@@ -137,16 +144,30 @@ rule long_index_star:
 
 
 rule chrom_sizes:
+    """Get transcript sizes of RNAs without gtf files from FASTA index
+    """
     input:
         '{genome_dir}/fasta/{rna_type}.fa.fai'
     output:
         '{genome_dir}/chrom_sizes/{rna_type}'
     wildcard_constraints:
-        rna_type='(?!transcriptome$)(?!genome$)(?!transcriptome_genome$).*'
+        rna_type=''.join('(?!' + rna_type + '$)' for rna_type in rna_types_with_gtf) + '(?!transcriptome$)(?!genome$)(?!transcriptome_genome$).*'
     shell:
         '''cut -f1,2 {input} > {output}
         '''
 
+rule chrom_sizes_with_gtf:
+    """Get transcript sizes of RNAs with gtf files from bowtie2-RSEM fasta index
+    """
+    input:
+        '{genome_dir}/rsem_index/bowtie2/{rna_type}.transcripts.fa.fai'
+    output:
+        '{genome_dir}/chrom_sizes/{rna_type}'
+    wildcard_constraints:
+        rna_type='|'.join('(' + rna_type + ')' for rna_type in rna_types_with_gtf)
+    shell:
+        '''cut -f1,2 {input} > {output}
+        '''
 
 rule merge_transcript_sizes:
     input:
@@ -176,4 +197,84 @@ rule merge_transcriptome_genome_sizes:
     shell:
         '''cat {input} > {output}
         '''
-    
+
+rule rsem_index_bowtie2:
+    input:
+        fasta='{genome_dir}/fasta/genome.fa',
+        gtf=lambda wildcards: expand('{genome_dir}/gtf_longest_transcript/{rna_type}.gtf',
+            genome_dir=wildcards.genome_dir, 
+            rna_type=wildcards.rna_type)
+    output:
+        chrlist='{genome_dir}/rsem_index/bowtie2/{rna_type}.chrlist',
+        grp='{genome_dir}/rsem_index/bowtie2/{rna_type}.grp',
+        idx_fa='{genome_dir}/rsem_index/bowtie2/{rna_type}.idx.fa',
+        transcripts_fa='{genome_dir}/rsem_index/bowtie2/{rna_type}.transcripts.fa',
+        bt2_1='{genome_dir}/rsem_index/bowtie2/{rna_type}.1.bt2',
+        bt2_2='{genome_dir}/rsem_index/bowtie2/{rna_type}.2.bt2',
+        bt2_3='{genome_dir}/rsem_index/bowtie2/{rna_type}.3.bt2',
+        bt2_4='{genome_dir}/rsem_index/bowtie2/{rna_type}.4.bt2',
+        bt2_rev_1='{genome_dir}/rsem_index/bowtie2/{rna_type}.rev.1.bt2',
+        bt2_rev_2='{genome_dir}/rsem_index/bowtie2/{rna_type}.rev.2.bt2'
+    params:
+        output_prefix='{genome_dir}/rsem_index/bowtie2/{rna_type}'
+    wildcard_constraints:
+        aligner='bowtie2'
+    shell:
+        '''rsem-prepare-reference --gtf {input.gtf} --bowtie2 {input.fasta} {params.output_prefix}
+        '''
+
+rule rsem_index_bowtie2_fasta_index:
+    input:
+        '{genome_dir}/rsem_index/bowtie2/{rna_type}.transcripts.fa'
+    output:
+        '{genome_dir}/rsem_index/bowtie2/{rna_type}.transcripts.fa.fai'
+    shell:
+        '''samtools faidx {input}
+        '''
+
+rule gtf_longest_transcript:
+    input:
+        '{genome_dir}/gtf_by_biotype/{rna_type}.gtf'
+    output:
+        '{genome_dir}/gtf_longest_transcript/{rna_type}.gtf'
+    shell:
+        '''{bin_dir}/preprocess.py extract_longest_transcript -i {input} -o {output}
+        '''
+
+rule fasta_index_to_transcript_table:
+    input:
+        '{genome_dir}/fasta/{rna_type}.fa.fai'
+    output:
+        '{genome_dir}/transcript_table/{rna_type}.txt'
+    wildcard_constraints:
+        rna_type='(rRNA)|(spikein)|(univec)'
+    shell:
+        r'''{{
+            echo -e 'chrom\tstart\tend\tname\tscore\tstrand\tgene_id\ttranscript_id\tgene_name\ttranscript_name\tgene_type\ttranscript_type\tsource'
+            awk 'BEGIN{{OFS="\t";FS="\t"}}{{print $1,0,$2,$1,0,"+",$1,$1,$1,$1,"{wildcards.rna_type}","{wildcards.rna_type}","miRBase"}}' {input}
+          }} > {output}
+        '''
+
+rule gtf_to_transcript_table:
+    input:
+        '{genome_dir}/gtf_longest_transcript/{rna_type}.gtf'
+    output:
+        '{genome_dir}/transcript_table/{rna_type}.txt'
+    wildcard_constraints:
+        rna_type='(?!(all|rRNA|spikein|univec)).*'
+    shell:
+        '''{bin_dir}/preprocess.py gtf_to_transcript_table --feature exon \
+            --gene-type {wildcards.rna_type} \
+            --transcript-type {wildcards.rna_type} \
+            -i {input} -o {output}
+        '''
+
+rule merge_transcript_table:
+    input:
+        lambda wildcards: expand('{genome_dir}/transcript_table/{rna_type}.txt',
+            genome_dir=wildcards.genome_dir, rna_type=rna_types_with_gtf)
+    output:
+        '{genome_dir}/transcript_table/all.txt'
+    shell:
+        '''cat {input} > {output}
+        '''

@@ -5,8 +5,8 @@ container:
     singularity_image: /home/vbox/singularity/exseek2
     docker_image: ltbyshi/exseek
     wrapper_dir: singularity/wrappers
-data_dir: data/example_small
-output_dir: output/example_small
+data_dir: data/cfRNA_small
+output_dir: output/cfRNA_small
 threads: 4
 star_genome_generate:
   sjdbOverhang: 100

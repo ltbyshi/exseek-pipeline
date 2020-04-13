@@ -1,6 +1,6 @@
 # From CRAN
 install.packages(c('devtools', 'VGAM', 'argparse', 'magrittr', 'readr', 'mvoutlier', 
-    'ggpubr', 'fastqcr', 'ggfortify'), Ncpus=4, ask=FALSE)
+    'ggpubr', 'fastqcr', 'ggfortify', 'SIS'), Ncpus=4, ask=FALSE)
 # From Bioconductor
 if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
@@ -14,8 +14,8 @@ install.packages('countreg', repos = c('http://download.r-forge.r-project.org',
 # From GitHub
 #library(devtools)
 library(remotes)
-install_github('ChenMengjie/VIPER')
-install_github('kassambara/easyGgplot2')
-install_github("Vivianstats/scImpute")
+#install_github('ChenMengjie/VIPER')
+#install_github('kassambara/easyGgplot2')
+#install_github("Vivianstats/scImpute")
 install_github("hemberg-lab/scRNA.seq.funcs")
 install_github('theislab/kBET')

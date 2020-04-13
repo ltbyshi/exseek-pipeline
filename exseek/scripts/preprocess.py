@@ -365,7 +365,7 @@ def extract_feature_sequence(args):
 
     def pad_range(start, end, chrom_size, max_length):
         if (end - start) >= max_length:
-            continue
+            return
         padding_left = (max_length - (end - start))//2
         new_start = max(0, start - padding_left)
         new_end = min(new_start + max_length, chrom_size)
