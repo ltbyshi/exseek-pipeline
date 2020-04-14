@@ -234,7 +234,7 @@ rule rsem_index_bowtie2_fasta_index:
 
 rule gtf_longest_transcript:
     input:
-        '{genome_dir}/gtf_by_biotype/{rna_type}.gtf'
+        '{genome_dir}/gtf_longest_transcript/{rna_type}.gtf'
     output:
         '{genome_dir}/gtf_longest_transcript/{rna_type}.gtf'
     shell:
