@@ -5,7 +5,16 @@ rule all:
         unmapped=expand('{output_dir}/unmapped/{sample_id}/other.fa.gz',
             output_dir=output_dir, sample_id=sample_ids),
         bam=expand('{output_dir}/gbam/{sample_id}/other.bam',
+            output_dir=output_dir, sample_id=sample_ids),
+        {% for rna_type in rna_types %}
+        {% if loop.last %}
+        tbam_{{ rna_type }}=expand('{output_dir}/tbam/{sample_id}/{{ rna_type }}.bam',
             output_dir=output_dir, sample_id=sample_ids)
+        {% else %}
+        tbam_{{ rna_type }}=expand('{output_dir}/tbam/{sample_id}/{{ rna_type }}.bam',
+            output_dir=output_dir, sample_id=sample_ids),
+        {% endif %}
+        {% endfor %}
 
 {% for rna_type in rna_types %}
 rule map_{{ rna_type }}:
