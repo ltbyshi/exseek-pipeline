@@ -7,10 +7,10 @@ def get_all_inputs(wildcards):
         fasta_index=expand('{genome_dir}/fasta/genome.fa.fai', genome_dir=genome_dir),
         bowtie2_index=expand('{genome_dir}/index/bowtie2/{rna_type}.1.bt2',
             genome_dir=genome_dir, rna_type=config['rna_types']),
-        bowtie2_rsem_index=expand('{genome_dir}/rsem_index/bowtie2/{rna_type}.transcripts.fa',
-            genome_dir=genome_dir, rna_type=rna_types_with_gtf),
-        bowtie2_rsem_index_fasta_index=expand('{genome_dir}/rsem_index/bowtie2/{rna_type}.transcripts.fa.fai',
-            genome_dir=genome_dir, rna_type=rna_types_with_gtf),
+        #bowtie2_rsem_index=expand('{genome_dir}/rsem_index/bowtie2/{rna_type}.transcripts.fa',
+        #    genome_dir=genome_dir, rna_type=rna_types_with_gtf),
+        #bowtie2_rsem_index_fasta_index=expand('{genome_dir}/rsem_index/bowtie2/{rna_type}.transcripts.fa.fai',
+        #    genome_dir=genome_dir, rna_type=rna_types_with_gtf),
         #star_index=expand('{genome_dir}/index/star/{rna_type}/SA',
         #    genome_dir=genome_dir, rna_type=[config['rna_types']]),
         #star_genome_index=expand('{genome_dir}/long_index/star/Genome', genome_dir=genome_dir),
@@ -142,10 +142,23 @@ rule long_index_star:
             --limitGenomeGenerateRAM {params.limitGenomeGenerateRAM}
         '''
 
-
 rule chrom_sizes:
     """Get transcript sizes of RNAs without gtf files from FASTA index
     """
+    input:
+        '{genome_dir}/fasta/{rna_type}.fa.fai'
+    output:
+        '{genome_dir}/chrom_sizes/{rna_type}'
+    wildcard_constraints:
+        rna_type='(?!transcriptome$)(?!genome$)(?!transcriptome_genome$).*'
+    shell:
+        '''cut -f1,2 {input} > {output}
+        '''
+
+"""
+rule chrom_sizes:
+    '''Get transcript sizes of RNAs without gtf files from FASTA index
+    '''
     input:
         '{genome_dir}/fasta/{rna_type}.fa.fai'
     output:
@@ -157,8 +170,8 @@ rule chrom_sizes:
         '''
 
 rule chrom_sizes_with_gtf:
-    """Get transcript sizes of RNAs with gtf files from bowtie2-RSEM fasta index
-    """
+    '''Get transcript sizes of RNAs with gtf files from bowtie2-RSEM fasta index
+    '''
     input:
         '{genome_dir}/rsem_index/bowtie2/{rna_type}.transcripts.fa.fai'
     output:
@@ -168,6 +181,7 @@ rule chrom_sizes_with_gtf:
     shell:
         '''cut -f1,2 {input} > {output}
         '''
+"""
 
 rule merge_transcript_sizes:
     input:

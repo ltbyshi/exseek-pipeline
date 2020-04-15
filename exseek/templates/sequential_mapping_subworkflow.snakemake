@@ -29,7 +29,7 @@ rule map_{{ rna_type }}:
         {% elif rna_type == 'spikein' %}
         index=config['spikein_dir'] + '/index/{{ aligner }}/{{ rna_type }}.1.bt2'
         {% else %}
-        index=config['genome_dir'] + '/rsem_index/{{ aligner }}/{{ rna_type }}.1.bt2'
+        index=config['genome_dir'] + '/index/{{ aligner }}/{{ rna_type }}.1.bt2'
         {% endif %}
     output:
         unmapped='{output_dir}/unmapped/{sample_id}/{{ rna_type }}.fa.gz',
