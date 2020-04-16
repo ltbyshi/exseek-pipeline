@@ -13,11 +13,9 @@ import pkg_resources
 steps = (
     'quality_control',
     'quality_control_clean',
-    'create_index',
     'cutadapt', 
     'rename_fastq',
     'fastq_to_fasta', 
-    'prepare_genome', 
     'bigwig',
     'mapping',
     'sequential_mapping',
@@ -29,8 +27,6 @@ steps = (
     'feature_selection', 
     'differential_expression', 
     'evaluate_features',
-    'igv',
-    'update_sequential_mapping',
     'update_singularity_wrappers',
     'build_index'
 )
@@ -55,6 +51,35 @@ def get_config_file(filename):
         if os.path.isfile(os.path.join(config_dir, filename)):
             return os.path.join(config_dir, filename)
 
+def execute_snakemake(exec_method='execv'):
+    global snakemake_args
+
+    snakemake_args += ['--snakefile', snakefile, '--configfile', configfile]
+    # set root_dir and bin_dir
+    extra_config['package_dir'] = package_dir
+    extra_config['bin_dir'] = os.path.join(package_dir, 'scripts')
+    extra_config['root_dir'] = root_dir
+    extra_config['dataset'] = args.dataset
+    extra_config['config_dirs'] = ':'.join(config_dirs)
+    # extra args
+    snakemake_args = [str(s) for s in snakemake_args]
+    snakemake_args += extra_args
+
+    if args.singularity:
+        if not os.path.isdir(config['container']['wrapper_dir']):
+            update_singularity_wrappers()
+        logger.info('enable singularity')
+        extra_config['use_singularity'] = True
+    
+    # extra config
+    snakemake_args += ['--config'] + ['{}={}'.format(key, val) for key, val in extra_config.items()]
+    #subprocess.check_call(snakemake_args, shell=False)
+    logger.info('run snakemake: {}'.format(quoted_string_join(snakemake_args)))
+    # run snakemake
+    if exec_method == 'execv':
+        os.execv(snakemake_path, snakemake_args)
+    elif exec_method == 'check_call':
+        subprocess.check_call(snakemake_args, shell=False)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='exSeek main program')
@@ -107,7 +132,7 @@ if __name__ == '__main__':
         raise ValueError('cannot find snakemake command')
 
     # snakemake command
-    snakemake_args = ['snakemake', '-k', '--rerun-incomplete']
+    snakemake_args = [snakemake_path, '-k', '--rerun-incomplete']
     extra_config = {}
     # check configuration file
     configfile = get_config_file('{}.yaml'.format(args.dataset))
@@ -211,6 +236,9 @@ if __name__ == '__main__':
         snakefile = generate_sequential_mapping_snakefile()
     elif args.step == 'mapping':
         if config['small_rna']:
+            # first run sequential_mapping
+            snakefile = generate_sequential_mapping_snakefile()
+            execute_snakemake(exec_method='check_call')
             snakefile = os.path.join(package_dir, 'snakefiles', 'mapping_small.snakemake')
         else:
             if config['paired_end']:
@@ -248,6 +276,8 @@ if __name__ == '__main__':
             raise ValueError('call_domains can only be applied to small RNA-seq data')
     else:
         snakefile = os.path.join(package_dir, 'snakefiles', args.step + '.snakemake')
+    execute_snakemake()
+    '''
     snakemake_args += ['--snakefile', snakefile, '--configfile', configfile]
     # set root_dir and bin_dir
     extra_config['package_dir'] = package_dir
@@ -271,4 +301,4 @@ if __name__ == '__main__':
     logger.info('run snakemake: {}'.format(quoted_string_join(snakemake_args)))
     # run snakemake
     os.execv(snakemake_path, snakemake_args)
-    
+    '''
