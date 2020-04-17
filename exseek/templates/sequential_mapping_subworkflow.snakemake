@@ -40,7 +40,7 @@ rule map_{{ rna_type }}:
         {% elif rna_type == 'spikein' %}
         index=config['spikein_dir'] + '/index/{{ aligner }}/{{ rna_type }}'
         {% else %}
-        index=config['genome_dir'] + '/rsem_index/{{ aligner }}/{{ rna_type }}'
+        index=config['genome_dir'] + '/index/{{ aligner }}/{{ rna_type }}'
         {% endif %}
     threads: 
         config['threads_mapping']
