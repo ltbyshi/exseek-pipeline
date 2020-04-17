@@ -8,7 +8,7 @@ with open('requirements.txt') as fin:
     requirements = [line.strip() for line in fin]
 
 setup(
-    name='snakePipes',
+    name='exseek-pipeline',
     version='1.0.0',
     scripts=scripts,
     packages=['exseek'],
