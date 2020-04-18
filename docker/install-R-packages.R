@@ -1,5 +1,5 @@
 # From CRAN
-install.packages(c('devtools', 'argparse', 'magrittr', 'readr', 'mvoutlier', 'ggfortify', 'SIS'), Ncpus=4, ask=FALSE)
+install.packages(c('devtools', 'argparse', 'magrittr', 'readr', 'mvoutlier', 'SIS'), Ncpus=4, ask=FALSE)
 # From Bioconductor
 if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")

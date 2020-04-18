@@ -40,7 +40,6 @@ RUN cd /apps/archive; Rscript /apps/archive/install-R-packages.R
 
 # install conda packages
 RUN /apps/anaconda3/bin/conda install -y 'python<3.7' numpy scipy scikit-learn 'openssl<1.1' \
-    && /apps/anaconda3/bin/conda install -c conda-forge datrie \
     && /apps/anaconda3/bin/conda install -y pandas matplotlib seaborn h5py \
     && /apps/anaconda3/bin/conda install -c bioconda -y bedtools samtools star subread bowtie2 rsem bamtools cutadapt picard gffread gffcompare \
     && /apps/anaconda3/bin/conda install -c bioconda -y fastx_toolkit biopython multiqc fastqc
