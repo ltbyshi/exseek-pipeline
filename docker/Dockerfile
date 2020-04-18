@@ -19,7 +19,7 @@ COPY Anaconda3-2019.03-Linux-x86_64.sh /apps/archive
 RUN bash /apps/archive/Anaconda3-2019.03-Linux-x86_64.sh -b -p /apps/anaconda3 
 
 # install pip packages
-RUN /apps/anaconda3/bin/pip install skrebate mlxtend tqdm jinja2 snakemake pyBigWig
+RUN /apps/anaconda3/bin/pip install skrebate mlxtend tqdm jinja2 snakemake pyBigWig multiqc
 
 # UCSC kent tools
 RUN mkdir -p /apps/ucsc_tools \
@@ -43,7 +43,7 @@ RUN /apps/anaconda3/bin/conda install -y 'python<3.7' numpy scipy scikit-learn '
     && /apps/anaconda3/bin/conda install -c conda-forge datrie \
     && /apps/anaconda3/bin/conda install -y pandas matplotlib seaborn h5py \
     && /apps/anaconda3/bin/conda install -c bioconda -y bedtools samtools star subread bowtie2 rsem bamtools cutadapt picard gffread gffcompare \
-    && /apps/anaconda3/bin/conda install -c bioconda -y fastx_toolkit biopython multiqc fastqc
+    && /apps/anaconda3/bin/conda install -c bioconda -y fastx_toolkit biopython multiqc
 
 # cleanup 
 RUN /apps/anaconda3/bin/conda clean -y --all \
