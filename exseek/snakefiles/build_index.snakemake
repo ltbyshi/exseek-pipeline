@@ -187,8 +187,8 @@ rule fasta_index_to_transcript_table:
         '{genome_dir}/fasta/{rna_type}.fa.fai'
     output:
         '{genome_dir}/transcript_table/{rna_type}.txt'
-    wildcard_constraints:
-        rna_type='(rRNA)|(spikein)|(univec)'
+    #wildcard_constraints:
+    #    rna_type='(rRNA)|(spikein)|(univec)'
     shell:
         r'''{{
             echo -e 'chrom\tstart\tend\tname\tscore\tstrand\tgene_id\ttranscript_id\tgene_name\ttranscript_name\tgene_type\ttranscript_type\tsource'
@@ -196,6 +196,7 @@ rule fasta_index_to_transcript_table:
           }} > {output}
         '''
 
+"""
 rule gtf_to_transcript_table:
     input:
         '{genome_dir}/gtf_longest_transcript/{rna_type}.gtf'
@@ -209,6 +210,7 @@ rule gtf_to_transcript_table:
             --transcript-type {wildcards.rna_type} \
             -i {input} -o {output}
         '''
+"""
 
 rule merge_transcript_table:
     input:
@@ -217,5 +219,9 @@ rule merge_transcript_table:
     output:
         '{genome_dir}/transcript_table/all.txt'
     shell:
-        '''cat {input} > {output}
+        '''{{
+           echo -e  'chrom\tstart\tend\tname\tscore\tstrand\tgene_id\ttranscript_id\tgene_name\ttranscript_name\tgene_type\ttranscript_type\tsource'
+           sed '1 d' {input}
+        }} > {output}
         '''
+
