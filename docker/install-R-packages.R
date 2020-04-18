@@ -1,16 +1,13 @@
 # From CRAN
-install.packages(c('devtools', 'VGAM', 'argparse', 'magrittr', 'readr', 'mvoutlier', 
-    'ggpubr', 'fastqcr', 'ggfortify', 'SIS'), Ncpus=4, ask=FALSE)
+install.packages(c('devtools', 'argparse', 'magrittr', 'readr', 'mvoutlier', 'ggfortify', 'SIS'), Ncpus=4, ask=FALSE)
 # From Bioconductor
 if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
 #BiocManager::install("TCGAbiolinks", version = "3.8")
 #source('https://bioconductor.org/biocLite.R')
-BiocManager::install(c('SingleCellExperiment', 'scater', 'scran', 'SCnorm',
-    'EDASeq', 'RUVSeq', 'DESeq2', 'edgeR', 'sva', 'apeglm', 'gglasso', 'ggbio'), Ncpus=4, ask=FALSE, update=TRUE)
-# From R-forge
-install.packages('countreg', repos = c('http://download.r-forge.r-project.org',
-    'https://mirrors.tuna.tsinghua.edu.cn/CRAN/'), dep = TRUE)
+BiocManager::install(c('SingleCellExperiment', 'scater', 'scran', 
+    'EDASeq', 'RUVSeq', 'DESeq2', 'edgeR', 'sva'), Ncpus=4, ask=FALSE, update=TRUE)
+
 # From GitHub
 #library(devtools)
 library(remotes)
