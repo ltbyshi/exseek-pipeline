@@ -1,0 +1,26 @@
+batch_indices: []
+batch_removal_methods: ["null", "RUV"]
+
+# file paths
+annotation_dir: genome/hg38
+genome_dir: genome/hg38
+output_dir: output/example_long
+temp_dir: tmp
+data_dir: data/example_long
+
+# general parameters
+threads_compress: 1
+threads_mapping: 6
+
+# mapping parameters
+aligner: bowtie2
+adaptor1: AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC
+adaptor2: AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT
+paired_end: true
+small_rna: false
+strandness: forward
+count_method: [featurecounts]
+remove_duplicates_long: true
+count_multimap_reads: true
+normalization_method: ["TMM"]
+batch_removal_method: ["null"]
