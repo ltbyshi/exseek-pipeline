@@ -17,5 +17,5 @@ setup(
     url='https://github.com/lulab/exseek',
     description='exSEEK - a pipeline for analysis of exRNA sequencing data',
     zip_safe=False,
-    data_files=[("requirements.txt", ["LICENSE"])]
+    data_files=[("", ['LICENSE', 'requirements.txt'])]
 )
