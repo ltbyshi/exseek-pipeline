@@ -224,6 +224,7 @@ if not os.path.isdir(temp_dir):
 
 sub_matrix_regex = '(mirna_only)'
 count_method_regex = '(featurecounts)|(htseq)|(transcript)|(mirna_and_long_fragments)|(featurecounts_lncrna)'
+count_method_regex = r'[^\.]+'
 imputation_method_regex = '(scimpute_count)|(viper_count)|(null)'
 normalization_method_regex = '(SCnorm)|(TMM)|(RLE)|(CPM)|(CPM_top)|(CPM_rm)|(CPM_refer)|(UQ)|(null)'
 batch_removal_method_with_batchinfo_regex = '(ComBat)|(limma)'
