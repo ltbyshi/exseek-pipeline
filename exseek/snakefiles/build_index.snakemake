@@ -4,18 +4,24 @@ genome_dir = config['genome_dir']
 
 def get_all_inputs(wildcards):
     available_inputs = dict(
-        fasta_index=expand('{genome_dir}/fasta/genome.fa.fai', genome_dir=genome_dir),
-        bowtie2_index=expand('{genome_dir}/index/bowtie2/{rna_type}.1.bt2',
-            genome_dir=genome_dir, rna_type=config['rna_types']),
-        #star_index=expand('{genome_dir}/index/star/{rna_type}/SA',
-        #    genome_dir=genome_dir, rna_type=[config['rna_types']]),
-        #star_genome_index=expand('{genome_dir}/long_index/star/Genome', genome_dir=genome_dir),
-        bowtie2_genome_index=expand('{genome_dir}/genome_index/bowtie2/genome.1.bt2', genome_dir=genome_dir),
-        chrom_sizes=expand('{genome_dir}/chrom_sizes/transcriptome', genome_dir=genome_dir),
-        chrom_sizes2=expand('{genome_dir}/chrom_sizes/transcriptome_genome', genome_dir=genome_dir),
-        gtf_to_transcript_table=expand('{genome_dir}/transcript_table/{rna_type}.txt',
-            genome_dir=genome_dir, rna_type=config['rna_types'] + ['all'])
+        fasta_index=expand('{genome_dir}/fasta/genome.fa.fai', genome_dir=genome_dir)
     )
+    if config['small_rna']:
+        available_inputs.update(dict(
+            bowtie2_genome_index=expand('{genome_dir}/genome_index/bowtie2/genome.1.bt2', genome_dir=genome_dir),
+            chrom_sizes=expand('{genome_dir}/chrom_sizes/transcriptome', genome_dir=genome_dir),
+            chrom_sizes2=expand('{genome_dir}/chrom_sizes/transcriptome_genome', genome_dir=genome_dir),
+            gtf_to_transcript_table=expand('{genome_dir}/transcript_table/{rna_type}.txt',
+                genome_dir=genome_dir, rna_type=config['rna_types'] + ['all']),
+            bowtie2_index=expand('{genome_dir}/index/bowtie2/{rna_type}.1.bt2',
+                genome_dir=genome_dir, rna_type=config['rna_types'])
+        ))
+    else:
+        available_inputs.update(dict(
+            star_index=expand('{genome_dir}/index/star/{rna_type}/SA',
+                genome_dir=genome_dir, rna_type=[config['rna_types']]),
+            star_genome_index=expand('{genome_dir}/long_index/star/Genome', genome_dir=genome_dir)
+        ))
     enabled_inputs = list(available_inputs.keys())
     inputs = []
     for key, l in available_inputs.items():
