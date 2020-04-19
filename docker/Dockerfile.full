@@ -5,7 +5,7 @@ RUN yum group install -y 'Development Tools' \
     && yum install -y epel-release \
     && yum install -y curl screen parallel \
          yum-utils \
-        coreutils which binutils vim nano emacs openssl-devel Xorg-devel mesa-libGL-devel \
+        coreutils which binutils vim openssl-devel Xorg-devel mesa-libGL-devel \
         libxml-devel libxml2-devel \
         java-1.8.0-openjdk wget pigz gawk \
     && yum-builddep -y R

@@ -14,19 +14,12 @@ steps = (
     'quality_control',
     'quality_control_clean',
     'cutadapt', 
-    'rename_fastq',
-    'fastq_to_fasta', 
     'bigwig',
     'mapping',
-    'sequential_mapping',
-    'filter',
     'count_matrix', 
     'call_domains', 
-    'combine_domains',
     'normalization', 
     'feature_selection', 
-    'differential_expression', 
-    'evaluate_features',
     'update_singularity_wrappers',
     'build_index'
 )
@@ -84,7 +77,7 @@ def execute_snakemake(exec_method='execv'):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='exSeek main program')
 
-    parser.add_argument('step', type=str, choices=steps)
+    parser.add_argument('step', type=str)
     parser.add_argument('--dataset', '-d', type=str, required=True,
         help='dataset name')
     parser.add_argument('--workdir', '-w', type=str,
@@ -274,8 +267,10 @@ if __name__ == '__main__':
             snakefile = os.path.join(package_dir, 'snakefiles', 'call_domains.snakemake')
         else:
             raise ValueError('call_domains can only be applied to small RNA-seq data')
-    else:
+    elif args.step in steps:
         snakefile = os.path.join(package_dir, 'snakefiles', args.step + '.snakemake')
+    else:
+        raise ValueError('unknown step: ' + args.step)
     execute_snakemake()
     '''
     snakemake_args += ['--snakefile', snakefile, '--configfile', configfile]

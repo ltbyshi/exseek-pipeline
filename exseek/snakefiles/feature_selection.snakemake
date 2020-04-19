@@ -2,8 +2,7 @@ include: 'common.snakemake'
 
 import yaml
 import re
-with open(data_dir + '/compare_groups.yaml', 'r') as f:
-    compare_groups = yaml.load(f)
+compare_groups = config['compare_groups']
 
 # Read best preprocess from output file of select_preprocess_method 
 # key: count_method, value: preprocess_method
@@ -84,55 +83,6 @@ def get_input_matrix(wildcards):
     # Use RPKM for long RNA
     else:
         return '{output_dir}/rpkm/{preprocess_method}.{count_method}.txt'.format(**wildcards)
-
-"""
-rule cross_validation1:
-    input:
-        matrix='{output_dir}/matrix_processing/{preprocess_method}.{count_method}.txt',
-        sample_classes=data_dir+ '/sample_classes.txt'
-    output:
-        directory('{output_dir}/cross_validation/{preprocess_method}.{count_method}/{compare_group}/{classifier}.{n_select}.{selector}.{fold_change_filter_direction}')
-    run:
-        import json
-        import os
-        import subprocess
-        from shlex import quote
-        from copy import deepcopy
-
-        fold_change_params = deepcopy(config.get('fold_change_filter_params', {}))
-        fold_change_params['direction'] = wildcards.fold_change_filter_direction
-        command = [
-            os.path.join(config['bin_dir'], 'machine_learning.py'), 'cross_validation',
-            '--matrix', input.matrix,
-            '--sample-classes', input.sample_classes,
-            '--output-dir', output[0],
-            '--transpose',
-            '--positive-class', compare_groups[wildcards.compare_group][1],
-            '--negative-class', compare_groups[wildcards.compare_group][0],
-            '--cv-params', json.dumps(config['cv_params'])
-        ]
-        if config['fold_change_filter']:
-            command += ['--fold-change-filter', '--fold-change-filter-params', json.dumps(fold_change_params)]
-        if config['zero_fraction_filter']:
-            command += ['--zero-fraction-filter', '--zero-fraction-filter-params', json.dumps(config['zero_fraction_filter_params'])]
-        if config['log_transform']:
-            command += ['--log-transform', '--log-transform-params', json.dumps(config['log_transform_params'])]
-        if config['scaler']:
-            command += ['--scaler', config['scaler'], '--scaler-params', json.dumps(config['scaler_params'].get(config['scaler'], {}))]
-        if config['selector']:
-            command += ['--selector', wildcards.selector, 
-                '--selector-params', json.dumps(config['selector_params'].get(wildcards.selector, {})),
-                '--n-features-to-select', wildcards.n_select]
-        if config['grid_search']:
-            command += ['--grid-search', '--grid-search-params', json.dumps(config['grid_search_params'])]
-        if config['sample_weight']:
-            command += ['--sample-weight', config['sample_weight']]
-        command += ['--classifier', wildcards.classifier, 
-            '--classifier-params', json.dumps(config['classifier_params'].get(wildcards.classifier, {}))]
-        command = list(map(str, command))
-        print(' '.join(map(quote, command)))
-        subprocess.check_call(command)
-"""
 
 rule cross_validation:
     input:

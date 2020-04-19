@@ -1,8 +1,6 @@
 include: 'common.snakemake'
 
-import yaml
-with open(data_dir + '/compare_groups.yaml', 'r') as f:
-    compare_groups = yaml.load(f)
+compare_groups = config['compare_groups']
 
 def get_all_inputs(wildcards):
     inputs = []
