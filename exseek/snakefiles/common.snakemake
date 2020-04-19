@@ -86,7 +86,7 @@ def get_preprocess_methods():
                 imputation_method=config['imputation_methods'],
                 normalization_method=config['normalization_methods'],
                 batch_removal_method=batch_removal_method,
-                batch_index=config['batch_indices'])
+                batch_index=config['batch_index'])
         elif batch_removal_method in ('RUV', 'RUVn', 'null'):
             template = 'filter.{imputation_method}.Norm_{normalization_method}.Batch_{batch_removal_method}_1'
             preprocess_methods += expand(template,
@@ -235,4 +235,5 @@ has_batch_info = os.path.isfile(os.path.join(data_dir, 'batch_info.txt'))
 # clustering scores for normalization, feature_selection and evaluate_features
 clustering_scores = ['uca_score']
 if has_batch_info:
-    clustering_scores += ['kbet_score', 'combined_score', 'knn_score']
+    #clustering_scores += ['kbet_score', 'combined_score', 'knn_score']
+    clustering_scores += ['combined_score', 'knn_score']
