@@ -189,7 +189,7 @@ bin_dir: "bin"
 # Directory for spike-in sequences and index
 spikein_dir: "genome/hg38/spikein"
 # bin path to R
-r_dir: "/usr/bin"
+# r_dir: "/usr/bin"
 # Input files are clean reads
 input_clean_reads: false
 

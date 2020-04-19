@@ -39,7 +39,7 @@ output_dir = require_variable('output_dir')
 rna_types = require_variable('rna_types')
 tools_dir = require_variable('tools_dir')
 temp_dir = require_variable('temp_dir')
-r_dir = require_variable('r_dir')
+# r_dir = require_variable('r_dir')
 # create temp_dir
 if not os.path.isdir(temp_dir):
     os.makedirs(temp_dir)

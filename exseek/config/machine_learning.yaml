@@ -33,7 +33,7 @@ selectors:
     name: DiffExpFilter
     type: selector
     params:
-      rscript_path: /usr/bin/Rscript
+      # rscript_path: /usr/bin/Rscript
       score_type: neglogp
       method: ttest
   MaxFeatures_RandomForest:
@@ -92,7 +92,7 @@ selectors:
     name: SIS
     type: selector
     params:
-      rscript_path: /usr/bin/Rscript
+      # rscript_path: /usr/bin/Rscript
       sis_params:
         family: binomial
         tune: bic
