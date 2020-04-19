@@ -28,7 +28,7 @@ preprocess_steps:
         with_mean: true
 
 # all possible selectors
-selectors:
+feature_selector_params:
   DiffExp_TTest:
     name: DiffExpFilter
     type: selector
@@ -167,7 +167,7 @@ classifier_grid_search_params:
   iid: false
   scoring: roc_auc
 
-classifiers:
+classifier_params:
   LogRegL2:
     classifier: LogisticRegression
     # parameters for the classifier used for feature selection
@@ -224,3 +224,10 @@ cv_params:
 # method for computing sample weight
 #  balanced: compute sample weight from data such that classes are balanced
 sample_weight: balanced
+
+# list of feature selector names
+feature_selectors: [DiffExp_TTest, MaxFeatures_RandomForest, MaxFeatures_LogRegL2, MaxFeatures_LogRegL1,
+  MaxFeatures_ElasticNet, SIS, ReliefF, SURF, MultiSURF, RandomSubset_RandomForest,
+  RandomSubset_LogRegL2, RandomSubset_LogRegL1]
+# list of classifier names
+classifiers: [LogRegL2, RandomForest, RBFSVM, DecisionTree, MLP]

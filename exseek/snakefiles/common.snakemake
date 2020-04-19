@@ -27,6 +27,9 @@ config_dirs = config_dirs.split(':')
 # load default config
 with open(get_config_file('default_config.yaml'), 'r') as f:
     default_config = yaml.load(f)
+# read selector-classifier
+with open(get_config_file('machine_learning.yaml'), 'r') as f:
+    default_config['machine_learning'] = yaml.load(f)
 
 default_config.update(config)
 config = default_config

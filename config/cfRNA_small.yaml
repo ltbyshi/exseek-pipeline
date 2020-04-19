@@ -22,3 +22,7 @@ imputation_method: ["null"]
 normalization_method: ["TMM"]
 # Batch effect removal methods to try (set "null" to skip batch effect removal)
 batch_removal_method: ["null"]
+count_method: ['transcript_mirna']
+compare_groups:
+  Normal-HCC: ['Normal', 'stage_A,stage_B,stage_C']
+  Normal-stage_A: ['Normal', 'stage_A']
