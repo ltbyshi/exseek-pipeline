@@ -282,7 +282,7 @@ rule summarize_mapping_star:
 rule summarize_fragment_counts_jupyter:
     input:
         summary='{output_dir}/summary/mapping_star.txt',
-        jupyter=root_dir + '/templates/summarize_mapping_star.ipynb'
+        jupyter=package_dir + '/templates/summarize_mapping_star.ipynb'
     output:
         jupyter='{output_dir}/summary/mapping_star.ipynb',
         html='{output_dir}/summary/mapping_star.html'

@@ -84,7 +84,7 @@ rule summarize_fastqc_pe:
 rule summarize_fastqc_jupyter_pe:
     input:
         fastqc='{output_dir}/summary/fastqc.txt',
-        jupyter=root_dir + '/templates/fastqc.ipynb'
+        jupyter=package_dir + '/templates/fastqc.ipynb'
     output:
         jupyter='{output_dir}/summary/fastqc_jupyter.ipynb',
         html='{output_dir}/summary/fastqc_jupyter.html'
@@ -178,9 +178,10 @@ rule summarize_cutadapt_pe:
 rule summarize_cutadapt_jupyter_pe:
     input:
         summary='{output_dir}/summary/cutadapt.txt',
-        jupyter=root_dir + '/templates/summarize_cutadapt_pe.ipynb'
+        jupyter=package_dir + '/templates/summarize_cutadapt_pe.ipynb'
     output:
         jupyter='{output_dir}/summary/cutadapt.ipynb',
         html='{output_dir}/summary/cutadapt.html'
     run:
         shell(nbconvert_command)
+    

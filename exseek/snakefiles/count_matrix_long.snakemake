@@ -364,7 +364,7 @@ rule summarize_fragment_counts:
 rule summarize_fragment_counts_jupyter:
     input:
         summary='{output_dir}/summary/read_counts.txt',
-        jupyter=root_dir + '/templates/summarize_read_counts_long.ipynb'
+        jupyter=package_dir + '/templates/summarize_read_counts_long.ipynb'
     output:
         jupyter='{output_dir}/summary/read_counts.ipynb',
         html='{output_dir}/summary/read_counts.html'

@@ -5,9 +5,9 @@ ENV PATH=/apps/exseek/bin:/apps/ucsc_tools:/opt/microsoft/ropen/3.5.3/lib64/R/bi
 COPY CentOS-Base.repo /etc/yum.repos.d
 RUN yum group install -y 'Development Tools' \
     && yum install -y epel-release \
-    && yum install -y curl screen parallel \
+    && yum install -y curl screen \
          yum-utils \
-        coreutils which binutils vim nano emacs openssl-devel Xorg-devel mesa-libGL-devel \
+        coreutils which binutils vim nano openssl-devel Xorg-devel mesa-libGL-devel \
         libxml-devel libxml2-devel \
         java-1.8.0-openjdk wget pigz gawk \
     && yum-builddep -y R \
