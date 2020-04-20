@@ -18,8 +18,8 @@ def get_all_inputs(wildcards):
         ))
     else:
         available_inputs.update(dict(
-            star_index=expand('{genome_dir}/index/star/{rna_type}/SA',
-                genome_dir=genome_dir, rna_type=[config['rna_types']]),
+            star_index=expand('{genome_dir}/index/star/genome/SA',
+                genome_dir=genome_dir),
             star_genome_index=expand('{genome_dir}/long_index/star/Genome', genome_dir=genome_dir)
         ))
     enabled_inputs = list(available_inputs.keys())

@@ -4,8 +4,9 @@ import os
 
 scripts = ['bin/exseek']
 
-with open('requirements.txt') as fin:
-    requirements = [line.strip() for line in fin]
+#with open('requirements.txt') as fin:
+#    requirements = [line.strip() for line in fin]
+requirements = []
 
 setup(
     name='exseek-pipeline',
