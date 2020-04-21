@@ -9,7 +9,6 @@ threads_compress: 1
 threads_mapping: 4
 
 # mapping parameters
-aligner: bowtie2
 adaptor1: AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC
 adaptor2: AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT
 paired_end: true

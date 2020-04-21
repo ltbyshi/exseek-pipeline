@@ -7,7 +7,6 @@ data_dir: data/small_se_example
 threads_compress: 1
 
 # mapping parameters
-aligner: bowtie2
 adaptor: AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC
 paired_end: false
 # Discard reads of length below this value
