@@ -119,7 +119,7 @@ rule map_genome_pe:
     input:
         reads1='{output_dir}/unmapped/{sample_id}/rRNA_1.fastq.gz',
         reads2='{output_dir}/unmapped/{sample_id}/rRNA_2.fastq.gz',
-        index=genome_dir + '/long_index/star/SA'
+        index=genome_dir + '/index/star/genome_long_rna/SA'
     output:
         bam='{output_dir}/bam/{sample_id}/genome.bam',
         unmapped1='{output_dir}/unmapped/{sample_id}/genome_1.fastq.gz',
@@ -127,7 +127,7 @@ rule map_genome_pe:
         log='{output_dir}/mapping_star/{sample_id}/genome/Log.final.out'
     params:
         output_prefix='{output_dir}/mapping_star/{sample_id}/genome/',
-        index=genome_dir + '/long_index/star',
+        index=genome_dir + '/index/star/genome_long_rna',
         seedPerWindowNmax=50
     threads:
         config['threads_mapping']
