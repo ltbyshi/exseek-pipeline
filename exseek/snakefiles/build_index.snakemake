@@ -83,6 +83,8 @@ rule transcript_index_star:
                 n_seqs += 1
         genomeSAindexNbases = min(14, int(log2(genome_length)//2) - 1)
         genomeChrBinNbits = min(18, int(log2(genome_length/n_seqs)))
+        if params.rna_type == 'rRNA':
+            genomeSAindexNbases = 5
 
         shell('''STAR --runThreadN {threads} \
             --runMode genomeGenerate \
