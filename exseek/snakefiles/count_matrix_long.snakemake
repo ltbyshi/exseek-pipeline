@@ -163,7 +163,7 @@ rule count_matrix:
         # read gene lengths
         gene_lengths = pd.read_table(input.gene_length, sep='\t', index_col=0, dtype='str').loc[:, 'merged']
         # remove features not in gene length
-        gene_ids = gene_ids[~(gene_lengths.loc[gene_ids].isna().values)]
+        gene_ids = gene_ids[~(gene_lengths.reindex(gene_ids).isna().values)]
         matrix = matrix.loc[gene_ids]
         # annotate features
         feature_names = transcript_table.loc[gene_ids, 'gene_id'].values \
