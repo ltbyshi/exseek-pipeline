@@ -1,6 +1,7 @@
 include: 'common.snakemake'
 
 genome_dir = config['genome_dir']
+rna_types_long = ['genome_long_rna', 'spikein_long', 'rRNA', 'circRNA', 'univec']
 
 def get_all_inputs(wildcards):
     available_inputs = dict(
@@ -19,7 +20,9 @@ def get_all_inputs(wildcards):
     else:
         available_inputs.update(dict(
             star_index=expand('{genome_dir}/index/star/{rna_type}/SA',
-                genome_dir=genome_dir, rna_type=['genome_long_rna', 'spikein_long', 'rRNA', 'circRNA', 'univec'])
+                genome_dir=genome_dir, rna_type=['genome_long_rna', 'spikein_long', 'rRNA', 'circRNA', 'univec']),
+            transcript_table=expand('{genome_dir}/transcript_table/{rna_type}.txt',
+                genome_dir=genome_dir, rna_type=['genome_long_rna', 'spikein_long', 'rRNA', 'circRNA', 'univec', 'long'])
         ))
     enabled_inputs = list(available_inputs.keys())
     inputs = []
@@ -205,21 +208,21 @@ rule fasta_index_to_transcript_table:
           }} > {output}
         '''
 
-"""
+
 rule gtf_to_transcript_table:
     input:
-        '{genome_dir}/gtf_longest_transcript/{rna_type}.gtf'
+        '{genome_dir}/gtf/long_RNA.gtf'
     output:
         '{genome_dir}/transcript_table/{rna_type}.txt'
     wildcard_constraints:
-        rna_type='(?!(all|rRNA|spikein|univec)).*'
+        rna_type='genome_long_rna'
     shell:
         '''{bin_dir}/preprocess.py gtf_to_transcript_table --feature exon \
             --gene-type {wildcards.rna_type} \
             --transcript-type {wildcards.rna_type} \
             -i {input} -o {output}
         '''
-"""
+
 
 rule merge_transcript_table:
     input:
@@ -234,3 +237,15 @@ rule merge_transcript_table:
         }} > {output}
         '''
 
+rule merge_transcript_table_long:
+    input:
+        lambda wildcards: expand('{genome_dir}/transcript_table/{rna_type}.txt',
+            genome_dir=wildcards.genome_dir, rna_type=rna_types_long)
+    output:
+        '{genome_dir}/transcript_table/long.txt'
+    shell:
+        '''{{
+           echo -e  'chrom\tstart\tend\tname\tscore\tstrand\tgene_id\ttranscript_id\tgene_name\ttranscript_name\tgene_type\ttranscript_type\tsource'
+           sed '1 d' {input}
+        }} > {output}
+        '''

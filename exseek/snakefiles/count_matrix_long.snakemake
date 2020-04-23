@@ -83,8 +83,6 @@ rule count_circRNA:
         '''
 
 class get_rmdup_counts:
-    '''
-    '''
     def __init__(self, template, rmdup=False):
         if rmdup:
             self.template = template + '_rmdup'
@@ -127,7 +125,7 @@ rule count_matrix:
     input:
         counts=get_rmdup_counts('{output_dir}/counts/{count_method}/{sample_id}/genome', rmdup=config['remove_duplicates_long']),
         matrix_circrna='{output_dir}/count_matrix/circRNA.txt',
-        transcript_table=genome_dir + '/transcript_table/all.txt',
+        transcript_table=genome_dir + '/transcript_table/long.txt',
         gene_length=genome_dir + '/gene_length/long_RNA'
     output:
         '{output_dir}/count_matrix/{count_method}.txt'
